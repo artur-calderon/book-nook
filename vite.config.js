@@ -2,8 +2,8 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   appType: "spa",
-  preview:{
-    allowedHosts:["https://book-nook-abux.onrender.com/"]
-  }
-  
+  preview: {
+    host: "0.0.0.0",
+    allowedHosts: true,
+  },
 });
