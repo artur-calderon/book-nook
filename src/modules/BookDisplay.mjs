@@ -9,7 +9,7 @@ export class BookDisplay {
     this.container.innerHTML = "";
 
     for (const book of books) {
-      this.container.append(this.#createCard(book));
+      this.container.append(this.createCard(book));
     }
   }
 
@@ -17,7 +17,7 @@ export class BookDisplay {
     this.container.innerHTML = "";
   }
 
-  #createCard(book) {
+  createCard(book) {
     const card = document.createElement("a");
     card.className = "book-card";
     card.href = `#book/${encodeURIComponent(book.id)}`;

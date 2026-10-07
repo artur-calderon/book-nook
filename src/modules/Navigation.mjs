@@ -2,7 +2,7 @@ export class Navigation {
   constructor(pages) {
     this.pages = pages;
     this.listeners = [];
-    window.addEventListener("hashchange", () => this.#handleHash());
+    window.addEventListener("hashchange", () => this.handleHash());
   }
 
   onChange(callback) {
@@ -10,7 +10,7 @@ export class Navigation {
   }
 
   start() {
-    this.#handleHash();
+    this.handleHash();
   }
 
   goHome() {
@@ -39,16 +39,16 @@ export class Navigation {
     return { name: "home" };
   }
 
-  #handleHash() {
+  handleHash() {
     const route = this.getRoute();
-    this.#show(route.name);
+    this.show(route.name);
 
     for (const callback of this.listeners) {
       callback(route);
     }
   }
 
-  #show(name) {
+  show(name) {
     for (const [key, page] of Object.entries(this.pages)) {
       const isActive = key === name;
       page.hidden = !isActive;

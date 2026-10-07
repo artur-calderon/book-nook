@@ -20,13 +20,13 @@ export class BookDetails {
     this.favoriteButton = root.querySelector("#favorite-button");
     this.favoriteLabel = root.querySelector("#favorite-button-label");
 
-    this.favoriteButton.addEventListener("click", () => this.#toggleFavorite());
+    this.favoriteButton.addEventListener("click", () => this.toggleFavorite());
   }
 
   showLoading() {
     this.book = null;
     this.content.hidden = true;
-    this.#showStatus("Loading book details...");
+    this.showStatus("Loading book details...");
   }
 
   showError(message, canRetry, onRetry) {
@@ -67,12 +67,12 @@ export class BookDetails {
     this.format.textContent = book.format;
 
     Cover.apply(this.cover, this.coverFallback, book.cover, `${book.title} cover`);
-    this.#renderChips(book);
-    this.#updateFavoriteButton();
+    this.renderChips(book);
+    this.updateFavoriteButton();
     this.title.focus();
   }
 
-  #showStatus(message) {
+  showStatus(message) {
     this.status.hidden = false;
     this.status.innerHTML = "";
     const text = document.createElement("p");
@@ -80,7 +80,7 @@ export class BookDetails {
     this.status.append(text);
   }
 
-  #renderChips(book) {
+  renderChips(book) {
     this.chips.innerHTML = "";
     const chips = [];
 
@@ -108,16 +108,16 @@ export class BookDetails {
     }
   }
 
-  #toggleFavorite() {
+  toggleFavorite() {
     if (!this.book) {
       return;
     }
 
     this.favorites.toggle(this.book);
-    this.#updateFavoriteButton();
+    this.updateFavoriteButton();
   }
 
-  #updateFavoriteButton() {
+  updateFavoriteButton() {
     const saved = this.book && this.favorites.isFavorite(this.book.id);
     this.favoriteButton.classList.toggle("is-saved", Boolean(saved));
     this.favoriteLabel.textContent = saved ? "Remove from Favorites" : "Add to Favorites";

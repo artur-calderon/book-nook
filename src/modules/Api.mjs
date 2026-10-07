@@ -8,12 +8,12 @@ export class Api {
 
   async searchBooks(query) {
     try {
-      const result = await this.#searchGoogle(query);
-      this.#rememberAll(result.books);
+      const result = await this.searchGoogle(query);
+      this.rememberAll(result.books);
       return result;
     } catch (error) {
-      const result = await this.#searchOpenLibrary(query);
-      this.#rememberAll(result.books);
+      const result = await this.searchOpenLibrary(query);
+      this.rememberAll(result.books);
       return result;
     }
   }
@@ -21,18 +21,18 @@ export class Api {
   async getBookById(id) {
     const cached = this.cache.get(id);
 
-    if (this.#isOpenLibraryId(id)) {
-      const extra = await this.#getOpenLibraryWork(id);
-      const book = this.#mergeBooks(cached, extra);
+    if (this.isOpenLibraryId(id)) {
+      const extra = await this.getOpenLibraryWork(id);
+      const book = this.mergeBooks(cached, extra);
       this.cache.set(id, book);
       return book;
     }
 
     try {
-      const book = await this.#getGoogleById(id);
+      const book = await this.getGoogleById(id);
       if (book.isbn && book.isbn !== "Not available") {
-        const extra = await this.#getOpenLibraryByIsbn(book.isbn);
-        const merged = this.#mergeBooks(book, extra);
+        const extra = await this.getOpenLibraryByIsbn(book.isbn);
+        const merged = this.mergeBooks(book, extra);
         this.cache.set(id, merged);
         return merged;
       }
@@ -46,7 +46,7 @@ export class Api {
     }
   }
 
-  async #searchGoogle(query) {
+  async searchGoogle(query) {
     const url = `${this.googleUrl}?q=${encodeURIComponent(query)}&maxResults=20`;
     const response = await fetch(url);
 
@@ -55,7 +55,7 @@ export class Api {
     }
 
     const data = await response.json();
-    const books = (data.items || []).map((item) => this.#fromGoogle(item));
+    const books = (data.items || []).map((item) => this.fromGoogle(item));
 
     return {
       books,
@@ -63,7 +63,7 @@ export class Api {
     };
   }
 
-  async #searchOpenLibrary(query) {
+  async searchOpenLibrary(query) {
     const fields = [
       "key",
       "title",
@@ -84,7 +84,7 @@ export class Api {
     }
 
     const data = await response.json();
-    const books = (data.docs || []).map((doc) => this.#fromOpenLibraryDoc(doc));
+    const books = (data.docs || []).map((doc) => this.fromOpenLibraryDoc(doc));
 
     return {
       books,
@@ -92,7 +92,7 @@ export class Api {
     };
   }
 
-  async #getGoogleById(id) {
+  async getGoogleById(id) {
     const response = await fetch(`${this.googleUrl}/${encodeURIComponent(id)}`);
 
     if (response.status === 404) {
@@ -103,10 +103,10 @@ export class Api {
       throw new Error("Could not load this book. Please try again.");
     }
 
-    return this.#fromGoogle(await response.json());
+    return this.fromGoogle(await response.json());
   }
 
-  async #getOpenLibraryWork(id) {
+  async getOpenLibraryWork(id) {
     const workResponse = await fetch(`https://openlibrary.org/works/${encodeURIComponent(id)}.json`);
 
     if (workResponse.status === 404) {
@@ -125,16 +125,16 @@ export class Api {
     }
 
     const coverId = data.covers?.[0];
-    const edition = await this.#getOpenLibraryEdition(id);
-    const authors = await this.#getAuthorNames(data.authors);
+    const edition = await this.getOpenLibraryEdition(id);
+    const authors = await this.getAuthorNames(data.authors);
 
     return {
       id,
       title: data.title || "Untitled",
       authors,
-      description: this.#plainText(description),
+      description: this.plainText(description),
       publishedDate: edition.publishDate,
-      categories: this.#cleanSubjects(data.subjects),
+      categories: this.cleanSubjects(data.subjects),
       cover: coverId ? `https://covers.openlibrary.org/b/id/${coverId}-L.jpg` : "",
       pageCount: edition.pageCount,
       publisher: edition.publisher,
@@ -145,7 +145,7 @@ export class Api {
     };
   }
 
-  async #getOpenLibraryEdition(workId) {
+  async getOpenLibraryEdition(workId) {
     try {
       const response = await fetch(
         `https://openlibrary.org/works/${encodeURIComponent(workId)}/editions.json?limit=10`,
@@ -162,7 +162,7 @@ export class Api {
       }
 
       const data = await response.json();
-      const edition = this.#pickEdition(data.entries);
+      const edition = this.pickEdition(data.entries);
       const isbn = edition.isbn_13?.[0] || edition.isbn_10?.[0] || "";
       const languageKey = edition.languages?.[0]?.key || "";
       const languageCode = languageKey.replace("/languages/", "");
@@ -171,7 +171,7 @@ export class Api {
         publishDate: edition.publish_date || "",
         pageCount: edition.number_of_pages || 0,
         publisher: edition.publishers?.[0] || "Not available",
-        language: this.#languageName(this.#normalizeLang(languageCode)),
+        language: this.languageName(this.normalizeLang(languageCode)),
         isbn: isbn || "Not available",
       };
     } catch (error) {
@@ -185,10 +185,10 @@ export class Api {
     }
   }
 
-  #fromGoogle(item) {
+  fromGoogle(item) {
     const info = item.volumeInfo || {};
     const images = info.imageLinks || {};
-    const isbn = this.#findIsbn(info.industryIdentifiers);
+    const isbn = this.findIsbn(info.industryIdentifiers);
     let cover = images.thumbnail || images.smallThumbnail || "";
     cover = cover.replace("http://", "https://");
 
@@ -200,20 +200,20 @@ export class Api {
       id: item.id,
       title: info.title || "Untitled",
       authors: info.authors || [],
-      description: this.#plainText(info.description),
+      description: this.plainText(info.description),
       publishedDate: info.publishedDate || "",
       categories: info.categories || [],
       cover,
       pageCount: info.pageCount || 0,
       publisher: info.publisher || "Not available",
-      language: this.#languageName(info.language),
+      language: this.languageName(info.language),
       isbn: isbn || "Not available",
-      format: this.#formatName(info.printType),
+      format: this.formatName(info.printType),
       rating: info.averageRating || 0,
     };
   }
 
-  #fromOpenLibraryDoc(doc) {
+  fromOpenLibraryDoc(doc) {
     const id = (doc.key || "").replace("/works/", "") || doc.cover_edition_key || doc.title;
     const isbn = doc.isbn?.[0] || "";
     let cover = "";
@@ -230,18 +230,18 @@ export class Api {
       authors: doc.author_name || [],
       description: "No description available.",
       publishedDate: doc.first_publish_year ? String(doc.first_publish_year) : "",
-      categories: this.#cleanSubjects(doc.subject),
+      categories: this.cleanSubjects(doc.subject),
       cover,
       pageCount: doc.number_of_pages_median || 0,
       publisher: doc.publisher?.[0] || "Not available",
-      language: this.#languageName(this.#normalizeLang(this.#pickLanguage(doc.language))),
+      language: this.languageName(this.normalizeLang(this.pickLanguage(doc.language))),
       isbn: isbn || "Not available",
       format: "Book",
       rating: 0,
     };
   }
 
-  async #getOpenLibraryByIsbn(isbn) {
+  async getOpenLibraryByIsbn(isbn) {
     try {
       const url = `${this.openLibraryUrl}?bibkeys=ISBN:${isbn}&format=json&jscmd=data`;
       const response = await fetch(url);
@@ -260,20 +260,20 @@ export class Api {
       return {
         cover: entry.cover?.large || entry.cover?.medium || "",
         publisher: entry.publishers?.[0]?.name || "",
-        description: this.#plainText(entry.notes || entry.excerpts?.[0]?.text || ""),
+        description: this.plainText(entry.notes || entry.excerpts?.[0]?.text || ""),
       };
     } catch (error) {
       return {};
     }
   }
 
-  #rememberAll(books) {
+  rememberAll(books) {
     for (const book of books) {
       this.cache.set(book.id, book);
     }
   }
 
-  #mergeBooks(base = {}, extra = {}) {
+  mergeBooks(base = {}, extra = {}) {
     return {
       ...base,
       ...extra,
@@ -305,17 +305,17 @@ export class Api {
     };
   }
 
-  #isOpenLibraryId(id) {
+  isOpenLibraryId(id) {
     return /^OL\d+W$/i.test(id);
   }
 
-  #findIsbn(identifiers = []) {
+  findIsbn(identifiers = []) {
     const isbn13 = identifiers.find((item) => item.type === "ISBN_13");
     const isbn10 = identifiers.find((item) => item.type === "ISBN_10");
     return isbn13?.identifier || isbn10?.identifier || "";
   }
 
-  #plainText(value) {
+  plainText(value) {
     if (!value) {
       return "No description available.";
     }
@@ -324,7 +324,7 @@ export class Api {
     return text || "No description available.";
   }
 
-  #normalizeLang(code) {
+  normalizeLang(code) {
     if (!code) {
       return "";
     }
@@ -352,7 +352,7 @@ export class Api {
     return code.length > 2 ? code.slice(0, 2) : code;
   }
 
-  #languageName(code) {
+  languageName(code) {
     const languages = {
       en: "English",
       es: "Spanish",
@@ -374,7 +374,7 @@ export class Api {
     return languages[code] || code;
   }
 
-  async #getAuthorNames(authors = []) {
+  async getAuthorNames(authors = []) {
     const names = [];
 
     for (const item of authors.slice(0, 3)) {
@@ -401,7 +401,7 @@ export class Api {
     return names;
   }
 
-  #pickEdition(entries = []) {
+  pickEdition(entries = []) {
     const hasIsbn = (entry) => entry.isbn_13?.[0] || entry.isbn_10?.[0];
     const isEnglish = (entry) =>
       (entry.languages || []).some((lang) => String(lang.key).includes("/eng"));
@@ -415,18 +415,18 @@ export class Api {
     );
   }
 
-  #cleanSubjects(subjects = []) {
+  cleanSubjects(subjects = []) {
     return subjects
       .map((subject) => String(subject).replaceAll("_", " ").trim())
       .filter((subject) => subject && !subject.includes(":") && subject.length < 32)
       .slice(0, 2);
   }
 
-  #pickLanguage(codes = []) {
+  pickLanguage(codes = []) {
     return codes.find((code) => code === "eng" || code === "en") || codes[0] || "";
   }
 
-  #formatName(printType) {
+  formatName(printType) {
     if (printType === "MAGAZINE") {
       return "Magazine";
     }

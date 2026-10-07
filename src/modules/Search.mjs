@@ -28,7 +28,7 @@ export class Search {
 
     this.input.value = query;
     const requestId = ++this.requestId;
-    this.#setLoading(true);
+    this.setLoading(true);
     this.onResults({ status: "loading", query, books: [], total: 0 });
 
     try {
@@ -55,12 +55,12 @@ export class Search {
       });
     } finally {
       if (requestId === this.requestId) {
-        this.#setLoading(false);
+        this.setLoading(false);
       }
     }
   }
 
-  #setLoading(isLoading) {
+  setLoading(isLoading) {
     this.button.disabled = isLoading;
     this.button.textContent = isLoading ? "Searching..." : "Search";
   }
