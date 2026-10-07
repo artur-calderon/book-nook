@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BookNook</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-start">
+        <a id="header-back" class="icon-button header-back" href="#home" hidden>
+          <span class="visually-hidden">Back to results</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
+            <path
+              d="M15 5 8 12l7 7"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </a>
+        <a class="logo" href="#home">
+          <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true" width="28" height="28">
+            <path
+              d="M4.5 8.5c2.2-1.2 4.7-1.8 7.5-1.8 2.8 0 5.3.6 7.5 1.8v16.2c-2.2-1.1-4.7-1.7-7.5-1.7-2.8 0-5.3.6-7.5 1.7V8.5Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M19.5 8.5c1.1-.6 2.3-1 3.5-1.3"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+            />
+            <circle cx="22.5" cy="20.5" r="4.2" fill="none" stroke="#D4A373" stroke-width="1.8" />
+            <path
+              d="M25.6 23.6 29 27"
+              fill="none"
+              stroke="#D4A373"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span class="logo-text">BookNook</span>
+        </a>
+      </div>
+      <a id="favorites-link" class="btn btn-outline favorites-link" href="#favorites" aria-label="Favorites">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18">
+          <path
+            d="M12.1 20.3 4.7 13a4.8 4.8 0 0 1 6.8-6.8l.6.6.6-.6a4.8 4.8 0 0 1 6.8 6.8l-7.4 7.3Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <span class="favorites-label" aria-hidden="true">Favorites</span>
+      </a>
+    </header>
+
+    <main>
+      <section id="home-page" class="page">
+        <div class="search-hero">
+          <h1>Find your next book</h1>
+          <p>Search by title, author, or keyword</p>
+          <form id="search-form" class="search-form">
+            <label class="visually-hidden" for="search-input">Search books</label>
+            <div class="search-field">
+              <svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18">
+                <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <path d="m16 16 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+              <input
+                id="search-input"
+                name="q"
+                type="search"
+                placeholder="Search books..."
+                autocomplete="off"
+              />
+            </div>
+            <button id="search-button" class="btn btn-primary" type="submit">Search</button>
+          </form>
+        </div>
+
+        <div id="results-section" class="results-section" hidden>
+          <div class="results-header">
+            <h2>Results</h2>
+            <p id="results-count" class="results-count" aria-live="polite"></p>
+          </div>
+          <div id="results-status" class="status-box" hidden></div>
+          <div id="results-grid" class="book-grid"></div>
+        </div>
+      </section>
+
+      <section id="details-page" class="page details-page" hidden>
+        <a id="details-back" class="btn btn-outline back-link" href="#home">
+          <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16">
+            <path
+              d="M15 5 8 12l7 7"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Back to results
+        </a>
+
+        <div id="details-status" class="status-box" hidden></div>
+
+        <div id="details-content" hidden>
+          <div class="details-layout">
+            <div class="cover-frame details-cover">
+              <img id="details-cover" alt="" />
+              <span id="details-cover-fallback" class="cover-fallback">No cover</span>
+            </div>
+
+            <div class="details-info">
+              <h1 id="details-title" tabindex="-1"></h1>
+              <p id="details-author" class="details-author"></p>
+              <div id="details-chips" class="chip-row"></div>
+              <button id="favorite-button" class="btn btn-outline favorite-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18">
+                  <path
+                    d="M12.1 20.3 4.7 13a4.8 4.8 0 0 1 6.8-6.8l.6.6.6-.6a4.8 4.8 0 0 1 6.8 6.8l-7.4 7.3Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span id="favorite-button-label">Add to Favorites</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="details-body">
+            <h2 class="section-label">Description</h2>
+            <p id="details-description" class="details-description"></p>
+
+            <dl class="details-meta">
+              <div>
+                <dt>Publisher</dt>
+                <dd id="details-publisher"></dd>
+              </div>
+              <div>
+                <dt>Language</dt>
+                <dd id="details-language"></dd>
+              </div>
+              <div>
+                <dt>ISBN</dt>
+                <dd id="details-isbn"></dd>
+              </div>
+              <div>
+                <dt>Format</dt>
+                <dd id="details-format"></dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section id="favorites-page" class="page" hidden>
+        <div class="results-header">
+          <h1>Favorites</h1>
+          <p id="favorites-count" class="results-count" aria-live="polite"></p>
+        </div>
+        <div id="favorites-status" class="status-box" hidden></div>
+        <div id="favorites-grid" class="book-grid"></div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.mjs"></script>
+  </body>
+</html>
